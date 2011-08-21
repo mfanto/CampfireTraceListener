@@ -6,6 +6,8 @@ This project includes a demo program that shows basic usage
 
 Code for the CustomTraceListener base class is from Ukadc.Diagnostics: http://ukadcdiagnostics.codeplex.com 
 
+The code for CampfireClient is taken from CCNet.Campfire.Plugin: https://github.com/alexcordellis/ccnet.campfire.plugin
+
 ## Configuration
 
 Configuration example can be found in the demo project, under CampfireTraceListener.Demo\app.config
