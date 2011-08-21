@@ -46,6 +46,7 @@
     <Compile Include="Campfire\ICampfireClient.cs" />
     <Compile Include="Configuration\CampfireConfiguration.cs" />
     <Compile Include="Configuration\ICampfireConfiguration.cs" />
+    <Compile Include="CustomTraceListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using CampfireTraceListener.Campfire;
 
-namespace CampfireTraceListener
+namespace CampfireTraceListeners
 {
-    public class CampfireTraceListener : TraceListener 
+    public class CampfireTraceListener : CustomTraceListener 
     {
         private readonly ICampfireClient _client;
 
@@ -18,30 +18,54 @@ namespace CampfireTraceListener
         }
 
         public CampfireTraceListener(ICampfireClient client)
+            : base("CampfireTraceListener")
         {
             _client = client;
         }
 
-        public void Join()
+        #region CustomTraceListener Overrides
+
+        /// <summary>
+        /// This method must be overriden and forms the core logging method called by all other TraceEvent methods.
+        /// </summary>
+        /// <param name="eventCache">A cache of data that defines the trace event</param>
+        /// <param name="source">The trace source</param>
+        /// <param name="eventType">The type of event</param>
+        /// <param name="id">The unique ID of the trace event</param>
+        /// <param name="message">A message to be output regarding the trace event</param>
+        protected override void TraceEventCore(TraceEventCache eventCache, string source, TraceEventType eventType,
+                                               int id, string message)
         {
-            _client.Join();
+            SendCampfireMessage(eventCache, source, eventType, id, message, null);
         }
 
         /// <summary>
-        /// When overridden in a derived class, writes the specified message to the listener you create in the derived class.
+        /// This method must be overriden and forms the core logging method called by all otherTraceData methods.
         /// </summary>
-        /// <param name="message">A message to write. </param><filterpriority>2</filterpriority>
-        public override void Write(string message)
+        /// <param name="eventCache">A cache of data that defines the trace event</param>
+        /// <param name="source">The trace source</param>
+        /// <param name="eventType">The type of event</param>
+        /// <param name="id">The unique ID of the trace event</param>
+        /// <param name="data">The data to be logged</param>
+        protected override void TraceDataCore(TraceEventCache eventCache, string source, TraceEventType eventType,
+                                              int id, params object[] data)
         {
-            _client.Post(message);
+            SendCampfireMessage(eventCache, source, eventType, id, null, data);
         }
 
-        /// <summary>
-        /// When overridden in a derived class, writes a message to the listener you create in the derived class, followed by a line terminator.
-        /// </summary>
-        /// <param name="message">A message to write. </param><filterpriority>2</filterpriority>
-        public override void WriteLine(string message)
+        #endregion
+
+        private void SendCampfireMessage(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
         {
+            // iterate through the data and create a single message
+            StringBuilder sb = new StringBuilder();
+
+            foreach (object item in data.Where(item => item != null))
+                sb.Append(item);
+
+            // Source LogLevel (id): message
+            string message = string.Format("{0} {1} ({2}): {3}", source, eventType.ToString(), id, sb.ToString());
+
             _client.Post(message);
         }
     }
